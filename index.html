@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Simple Login Authentication</title>
+  <style>
+    body{
+        text-align: center;
+        margin: 150px;
+        background: linear-gradient(rgb(0, 0, 0), rgb(151, 151, 151), rgb(0, 0, 0));
+        font-size: 20px;
+    }
+
+    #p1{
+        margin: 100px;
+    }
+  </style>
+</head>
+<body>
+  <h2>Register</h2>
+  <form id="registerForm">
+    <input type="text" id="regUsername" placeholder="Username" required><br>
+    <input type="password" id="regPassword" placeholder="Password" required><br>
+    <button type="submit">Register</button>
+  </form>
+
+  <p id="p1"></p>
+
+  <h2>Login</h2>
+  <form id="loginForm">
+    <input type="text" id="loginUsername" placeholder="Username" required><br>
+    <input type="password" id="loginPassword" placeholder="Password" required><br>
+    <button type="submit">Login</button>
+  </form>
+
+  <div id="securedPage" style="display: none;">
+    <h2>Welcome to the Secured Page</h2>
+    <button id="logout">Logout</button>
+  </div>
+
+  <p id="message"></p>
+
+  <script>
+    // Helper function to get data from localStorage
+function getUsers() {
+  return JSON.parse(localStorage.getItem('users')) || [];
+}
+
+// Helper function to set data in localStorage
+function setUsers(users) {
+  localStorage.setItem('users', JSON.stringify(users));
+}
+
+// Register new user
+document.getElementById('registerForm').addEventListener('submit', function(event) {
+  event.preventDefault();
+
+  const username = document.getElementById('regUsername').value;
+  const password = document.getElementById('regPassword').value;
+  const users = getUsers();
+
+  if (users.find(user => user.username === username)) {
+    document.getElementById('message').textContent = 'User already exists!';
+  } else {
+    users.push({ username, password });
+    setUsers(users);
+    document.getElementById('message').textContent = 'Registration successful!';
+  }
+});
+
+// Login user
+document.getElementById('loginForm').addEventListener('submit', function(event) {
+  event.preventDefault();
+
+  const username = document.getElementById('loginUsername').value;
+  const password = document.getElementById('loginPassword').value;
+  const users = getUsers();
+  const user = users.find(user => user.username === username && user.password === password);
+
+  if (user) {
+    localStorage.setItem('loggedInUser', username);
+    showSecuredPage();
+  } else {
+    document.getElementById('message').textContent = 'Invalid username or password!';
+  }
+});
+
+// Show secured page if logged in
+function showSecuredPage() {
+  const loggedInUser = localStorage.getItem('loggedInUser');
+
+  if (loggedInUser) {
+    document.getElementById('securedPage').style.display = 'block';
+    document.getElementById('loginForm').style.display = 'none';
+    document.getElementById('registerForm').style.display = 'none';
+    document.getElementById('message').textContent = `Welcome, ${loggedInUser}!`;
+  }
+}
+
+// Logout user
+document.getElementById('logout').addEventListener('click', function() {
+  localStorage.removeItem('loggedInUser');
+  window.location.reload();
+});
+
+// On page load, check if user is already logged in
+window.onload = function() {
+  showSecuredPage();
+}
+
+  </script>
+</body>
+</html>
